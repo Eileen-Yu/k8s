@@ -9,7 +9,7 @@ console.log(JSON.stringify(kc.contexts, null, 2));
 const k8sJobApi = kc.makeApiClient(k8s.BatchV1Api);
 
 export async function createK8sJob(projectLink: string, namespace: string): Promise<k8s.V1Job | undefined> {
-  const jobName = 'myJob';
+  const jobName = 'myjob';
   const job = new k8s.V1Job();
   const metadata = new k8s.V1ObjectMeta();
   job.apiVersion = 'batch/v1';
@@ -27,18 +27,25 @@ export async function createK8sJob(projectLink: string, namespace: string): Prom
         {
           name: "test",
           image: "busybox",
-          command: ["echo", projectLink],
+          args: ["/bin/sh", "-c", `date; ${projectLink}`]
         }
-      ]
+      ],
+      restartPolicy: "Never"
     }
   };
   spec.backoffLimit = 0;
+
   job.spec = spec;
 
+  console.log(JSON.stringify(job, null, 2));
 
-  const { body } = await k8sJobApi.createNamespacedJob(namespace, job)
-
-  return body;
+  try {
+    const { body } = await k8sJobApi.createNamespacedJob(namespace, job)
+    return body;
+  } catch (error) {
+    console.error(`Failed to create job:\n${error}`)
+    return undefined;
+  }
 }
 
 export async function getK8sJob(namespace: string): Promise<k8s.V1JobList> {
