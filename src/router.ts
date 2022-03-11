@@ -45,11 +45,11 @@ router.post('/task', async(ctx, _next) => {
   ctx.body = `Check ${projectLink} is under construction...`;
   
   // create a k8s job
-  const result = await k8s.createK8sJob(projectLink);
+  const result = await k8s.createK8sJob(projectLink, NAMESPACE);
 
   if (result) {
     ctx.status = 200;
-    ctx.body = "Successfully scheduled";
+    ctx.body = result;
   }
 })
 
