@@ -22,11 +22,29 @@ router.get('/task/:id', (ctx, _next) => {
   ctx.body = data;
 });
 
+function validateTaskRequest(requestBody: Record<string, any>): string | undefined {
+  const { projectLink } = requestBody;
+
+  if (!projectLink) return undefined;
+
+  return projectLink;
+}
+
 // Post a new Task
 router.post('/task', (ctx, _next) => {
-  // Get repo link from ctx
-  // create a k8s job
+  console.log(ctx.request);
 
+  // Get repo link from ctx
+  const data = ctx.request.body;
+  const projectLink = validateTaskRequest(data)
+  if (!projectLink) {
+    ctx.throw(400, 'Invalid project link', { data });
+    return;
+  }
+
+  ctx.body = `Check ${projectLink} is under construction...`;
+  
+  // create a k8s job
 })
 
 export { router }; 
