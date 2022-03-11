@@ -1,6 +1,8 @@
 import Router from '@koa/router';
 
+import * as k8s from './k8s';
 import { taskStore } from './server';
+import { NAMESPACE } from './constants';
 
 const router = new Router();              //Instantiate the router
 
@@ -29,7 +31,7 @@ function validateTaskRequest(requestBody: Record<string, any>): string | undefin
 }
 
 // Post a new Task
-router.post('/task', (ctx, _next) => {
+router.post('/task', async(ctx, _next) => {
   console.log(ctx.request);
 
   // Get repo link from ctx
@@ -43,6 +45,17 @@ router.post('/task', (ctx, _next) => {
   ctx.body = `Check ${projectLink} is under construction...`;
   
   // create a k8s job
+  const result = await k8s.createK8sJob(projectLink);
+
+  if (result) {
+    ctx.status = 200;
+    ctx.body = "Successfully scheduled";
+  }
+})
+
+router.get('/k8/job', async(ctx, _next) => {
+  const jobs = await k8s.getK8sJob(NAMESPACE);
+  ctx.body = jobs;
 })
 
 export { router }; 
