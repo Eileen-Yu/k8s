@@ -25,9 +25,7 @@ router.get('/task/:id', (ctx, _next) => {
 function validateTaskRequest(requestBody: Record<string, any>): string | undefined {
   const { projectLink } = requestBody;
 
-  if (!projectLink) return undefined;
-
-  return projectLink;
+  return projectLink ?? projectLink;
 }
 
 // Post a new Task
