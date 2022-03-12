@@ -1,6 +1,8 @@
 import * as k8s from '@kubernetes/client-node';
+
 import { NAMESPACE } from './constants';
-import {ProjectInfo} from './types';
+import { taskStore } from './server';
+import { TaskInfo } from './types';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -10,9 +12,8 @@ console.log(JSON.stringify(kc.contexts, null, 2));
 // const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sJobApi = kc.makeApiClient(k8s.BatchV1Api);
 
-export async function createK8sJob(projectInfo: ProjectInfo, namespace: string): Promise<k8s.V1Job | undefined> {
-  // Todo: add time surfix
-  const jobName = projectInfo.projectName + "scanner";
+function createK8sJobSpec(task: TaskInfo): k8s.V1Job {
+  const { projectName, projectLink, id } = task;
 
   const job = new k8s.V1Job();
 
@@ -20,9 +21,13 @@ export async function createK8sJob(projectInfo: ProjectInfo, namespace: string):
   job.kind = 'Job';
 
   job.metadata = {
-    name: jobName,
+    name: id,
+    namespace: NAMESPACE,
     annotations: {
       'packageHunter': 'local',
+      'projectName': projectName,
+      'projectLink': projectLink,
+      'taskID': id
     },
   };
 
@@ -32,8 +37,8 @@ export async function createK8sJob(projectInfo: ProjectInfo, namespace: string):
         containers: [
           {
             name: "main",
-            image: "busybox",
-            args: ["/bin/sh", "-c", `git clone ${projectInfo.projectLink}`]
+            image: "bitnami/git:latest",
+            command: ["/bin/bash","-c",`git clone ${projectLink}`]
           }
         ],
         restartPolicy: "Never"
@@ -42,11 +47,31 @@ export async function createK8sJob(projectInfo: ProjectInfo, namespace: string):
     backoffLimit: 0
   };
 
-  console.log(JSON.stringify(job, null, 2));
+  return job;
+}
+
+
+export async function createK8sJob(task: TaskInfo): Promise<k8s.V1Job | undefined> {
+  const jobSpec = createK8sJobSpec(task);
+
+  console.log(JSON.stringify(jobSpec, null, 2));
 
   try {
-    const { body } = await k8sJobApi.createNamespacedJob(namespace, job)
-    return body;
+    const { body: job } = await k8sJobApi.createNamespacedJob(NAMESPACE, jobSpec);
+
+    const jobName = job.metadata?.name;
+    if (!jobName) {
+      throw `Error when create k8s job for task:n${task}\n${job}\n`;
+    }
+
+    // Update k8s job status to jobStore
+    const { body: jobStatus } = await k8sJobApi.readNamespacedJobStatus(jobName, NAMESPACE);
+
+    taskStore.k8sJobs[jobName] = {
+      "status": jobStatus.status!
+    };
+
+    return jobStatus;
   } catch (error) {
     console.error(`Failed to create job:\n${error}`)
     return undefined;

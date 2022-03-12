@@ -25,8 +25,10 @@ export const taskStore: TaskStore = {
       result: [{"alert1": 123}, {"alert2": 456}]
     },
   },
-
-  k8sJobs: { "fakejob1": { podID: "asdfasdfasdfasdfasdf" } }
+  k8sJobs: { 
+    "fakejob1": { 
+      status: {}
+    }}
 };
 
 const app: Koa = new Koa();              //Instantiate the Koa object
