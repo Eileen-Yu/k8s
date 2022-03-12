@@ -1,4 +1,5 @@
 import * as k8s from '@kubernetes/client-node';
+import {NAMESPACE} from './constants';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -8,8 +9,9 @@ console.log(JSON.stringify(kc.contexts, null, 2));
 // const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sJobApi = kc.makeApiClient(k8s.BatchV1Api);
 
-export async function createK8sJob(projectLink: string, namespace: string): Promise<k8s.V1Job | undefined> {
-  const jobName = 'myjob';
+export async function createK8sJob(projectName: string, projectLink: string, namespace: string): Promise<k8s.V1Job | undefined> {
+  // Todo: add time surfix
+  const jobName = projectName + "scanner";
 
   const job = new k8s.V1Job();
 
@@ -28,9 +30,9 @@ export async function createK8sJob(projectLink: string, namespace: string): Prom
       spec: {
         containers: [
           {
-            name: "test",
+            name: "main",
             image: "busybox",
-            args: ["/bin/sh", "-c", `date; ${projectLink}`]
+            args: ["/bin/sh", "-c", `git clone ${projectLink}`]
           }
         ],
         restartPolicy: "Never"
@@ -50,7 +52,12 @@ export async function createK8sJob(projectLink: string, namespace: string): Prom
   }
 }
 
-export async function getK8sJob(namespace: string): Promise<k8s.V1JobList> {
- const { body: job } = await k8sJobApi.listNamespacedJob(namespace);
+// Todo: filter job by annotation
+export async function getK8sJobs(): Promise<k8s.V1JobList> {
+ const { body: job } = await k8sJobApi.listNamespacedJob(NAMESPACE);
  return job;
 }
+
+// Todo: func getK8sJob(id/name): Promise
+
+// Todo: func watchJobStatus(id)

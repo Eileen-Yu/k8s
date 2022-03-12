@@ -1,7 +1,17 @@
 export type TaskID = string;
 
+export interface Alert {
+  [key: string]: any
+}
+
 export interface TaskInfo {
+  id: string;
+  projectName: string;
+  projectLink: string;
+  createTime: string;
+  finishTime: string;
   status: string;
+  result: Alert[];
 }
 
 export interface K8sJobInfo {

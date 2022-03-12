@@ -1,2 +1,2 @@
-export const NAMESPACE = 'hunter';
+export const NAMESPACE = 'default';
 
