@@ -4,6 +4,7 @@ import * as k8s from './k8s';
 import { taskStore } from './server';
 import { TaskInfo } from './types';
 import { NAMESPACE } from './constants';
+import { ProjectInfo } from './types';
 
 const router = new Router();              //Instantiate the router
 
@@ -13,7 +14,8 @@ router.get('/task', (ctx, _next) => {
     ctx.body = taskStore;
     return;
   }
-  const { projectName, projectLink,  }  = ctx.query;
+
+  const { projectName, projectLink }  = ctx.query;
 
   const allTasks: TaskInfo[] = Object.values(taskStore.registeredTasks);
 
@@ -39,12 +41,7 @@ router.get('/task/:id', (ctx, _next) => {
 });
 
 
-interface ProjectInfo {
-  projectName: string;
-  projectLink: string;
-}
-
-function validateTaskRequest(requestBody: Record<string, any>): ProjectInfo | undefined {
+function validateTaskRequest(requestBody: Record<string, string>): ProjectInfo | undefined {
   const { projectName, projectLink } = requestBody;
   if (!projectName || !projectLink) return undefined;
 
@@ -65,7 +62,7 @@ router.post('/task', async(ctx, _next) => {
   }
 
   // create a k8s job
-  const result = await k8s.createK8sJob(projectInfo.projectName, projectInfo.projectLink, NAMESPACE);
+  const result = await k8s.createK8sJob(projectInfo, NAMESPACE);
 
   if (result) {
     ctx.status = 200;

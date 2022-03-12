@@ -1,5 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
-import {NAMESPACE} from './constants';
+import { NAMESPACE } from './constants';
+import {ProjectInfo} from './types';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -9,9 +10,9 @@ console.log(JSON.stringify(kc.contexts, null, 2));
 // const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sJobApi = kc.makeApiClient(k8s.BatchV1Api);
 
-export async function createK8sJob(projectName: string, projectLink: string, namespace: string): Promise<k8s.V1Job | undefined> {
+export async function createK8sJob(projectInfo: ProjectInfo, namespace: string): Promise<k8s.V1Job | undefined> {
   // Todo: add time surfix
-  const jobName = projectName + "scanner";
+  const jobName = projectInfo.projectName + "scanner";
 
   const job = new k8s.V1Job();
 
@@ -32,7 +33,7 @@ export async function createK8sJob(projectName: string, projectLink: string, nam
           {
             name: "main",
             image: "busybox",
-            args: ["/bin/sh", "-c", `git clone ${projectLink}`]
+            args: ["/bin/sh", "-c", `git clone ${projectInfo.projectLink}`]
           }
         ],
         restartPolicy: "Never"
