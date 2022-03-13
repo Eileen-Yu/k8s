@@ -1,7 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 
-import { NAMESPACE } from './constants';
-import { taskStore } from './server';
+import { NAMESPACE, taskStore } from './constants';
 import { TaskInfo } from './types';
 
 const kc = new k8s.KubeConfig();
@@ -9,7 +8,6 @@ kc.loadFromDefault();
 
 console.log(JSON.stringify(kc.contexts, null, 2));
  
-
 // const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sJobApi = kc.makeApiClient(k8s.BatchV1Api);
 
@@ -66,13 +64,10 @@ export async function createK8sJob(task: TaskInfo): Promise<k8s.V1Job | undefine
     }
 
     // Update k8s job status to jobStore
-    const { body: jobStatus } = await k8sJobApi.readNamespacedJobStatus(jobName, NAMESPACE);
+    const { body } = await k8sJobApi.readNamespacedJobStatus(jobName, NAMESPACE);
+    taskStore.k8sJobs[jobName] = body;
 
-    taskStore.k8sJobs[jobName] = {
-      "status": jobStatus.status!
-    };
-
-    return jobStatus;
+    return body;
   } catch (error) {
     console.error(`Failed to create job:\n${error}`)
     return undefined;
@@ -88,6 +83,11 @@ export async function getK8sJobs(): Promise<k8s.V1JobList> {
 
 export async function deleteK8sJobs(id: string) {
   await k8sJobApi.deleteNamespacedJob(id, NAMESPACE);
+}
+
+export async function getK8sJobStatus(id: string): Promise<k8s.V1Job> {
+  const { body: jobStatus } = await k8sJobApi.readNamespacedJobStatus(id, NAMESPACE);
+  return jobStatus;
 }
 
 // Todo: func getK8sJob(id/name): Promise

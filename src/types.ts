@@ -1,4 +1,4 @@
-import { V1JobStatus } from "@kubernetes/client-node";
+import { V1Job } from "@kubernetes/client-node";
 
 export interface ProjectInfo {
   projectName: string;
@@ -21,12 +21,8 @@ export interface TaskInfo {
   result: Alert[];
 }
 
-export interface K8sJobInfo {
-  status: V1JobStatus;
-}
-
 export interface TaskStore {
   registeredTasks: Record<TaskID, TaskInfo>;
-  k8sJobs: Record<TaskID, K8sJobInfo>;
+  k8sJobs: Record<TaskID, V1Job>;
 }
 

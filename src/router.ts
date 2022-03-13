@@ -1,9 +1,8 @@
 import Router from '@koa/router';
 
 import * as k8s from './k8s';
-import { taskStore } from './server';
 import { TaskInfo } from './types';
-import { NAMESPACE } from './constants';
+import { taskStore } from './constants';
 import { ProjectInfo } from './types';
 import { createTask } from './task';
 

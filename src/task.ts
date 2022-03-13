@@ -1,4 +1,4 @@
-import {taskStore} from './server';
+import { taskStore } from './constants';
 import { ProjectInfo, TaskInfo } from './types';
 
 export function createTaskID(projectName: string): string {
