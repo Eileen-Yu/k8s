@@ -1,6 +1,6 @@
 ## My K8s
 ### ToDo List:
-1. boilplate ☑️
+1. boilerplate ☑️
 2. RESTful API design ☑️
    - post task 
    - get task (&query) 
@@ -10,7 +10,7 @@
    - deleteJob 
    - getJob 
 5. track job status by watch API ☑️
-   - boilplate 
+   - boilerplate 
    - update 
    - delete 
 6. build image for various languages
