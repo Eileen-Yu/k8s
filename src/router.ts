@@ -5,6 +5,7 @@ import { taskStore } from './server';
 import { TaskInfo } from './types';
 import { NAMESPACE } from './constants';
 import { ProjectInfo } from './types';
+import { createTask } from './task';
 
 const router = new Router();              //Instantiate the router
 
@@ -60,15 +61,24 @@ router.post('/task', async(ctx, _next) => {
     ctx.throw(400, 'Invalid project link/name', { data });
     return;
   }
+  
+  // create a task in taskStore
+  const task = createTask(projectInfo);
+  if (!task) {
+    ctx.throw(500, `Failed to create task for ${JSON.stringify(projectInfo, null, 2)}`);
+    return;
+  }
 
   // create a k8s job
-  const result = await k8s.createK8sJob(projectInfo, NAMESPACE);
-
-  if (result) {
-    ctx.status = 200;
-    ctx.body = result;
+  const result = await k8s.createK8sJob(task);
+  if (!result) {
+    ctx.throw(500, `Failed to create job for task ${task.id}`);
+    return;
   }
-})
+
+  ctx.status = 200;
+  ctx.body = result;
+});
 
 router.get('/k8/job', async(ctx, _next) => {
   const jobs = await k8s.getK8sJobs();

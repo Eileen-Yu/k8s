@@ -1,4 +1,6 @@
-interface ProjectInfo {
+import { V1JobStatus } from "@kubernetes/client-node";
+
+export interface ProjectInfo {
   projectName: string;
   projectLink: string;
 }
@@ -20,7 +22,7 @@ export interface TaskInfo {
 }
 
 export interface K8sJobInfo {
-  podID: string;
+  status: V1JobStatus;
 }
 
 export interface TaskStore {
@@ -28,4 +30,3 @@ export interface TaskStore {
   k8sJobs: Record<TaskID, K8sJobInfo>;
 }
 
-export {ProjectInfo}
