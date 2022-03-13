@@ -8,6 +8,7 @@ const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
 console.log(JSON.stringify(kc.contexts, null, 2));
+ 
 
 // const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sJobApi = kc.makeApiClient(k8s.BatchV1Api);
@@ -82,6 +83,11 @@ export async function createK8sJob(task: TaskInfo): Promise<k8s.V1Job | undefine
 export async function getK8sJobs(): Promise<k8s.V1JobList> {
  const { body: job } = await k8sJobApi.listNamespacedJob(NAMESPACE);
  return job;
+}
+
+
+export async function deleteK8sJobs(id: string) {
+  await k8sJobApi.deleteNamespacedJob(id, NAMESPACE);
 }
 
 // Todo: func getK8sJob(id/name): Promise
