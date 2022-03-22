@@ -37,7 +37,15 @@ function createK8sJobSpec(task: TaskInfo): k8s.V1Job {
           {
             name: "main",
             image: "bitnami/git:latest",
-            command: ["/bin/bash","-c",`git clone ${projectLink}`]
+            command: ["/bin/bash","-c",`git clone ${projectLink}`],
+            volumeMounts: [
+              {
+                name: 'mypvc',
+                mountPath: '/source',
+                readOnly: true,
+                subPath: 'test/sturdy-eureka'
+              }
+            ],
           }
         ],
         restartPolicy: "Never"
