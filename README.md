@@ -13,7 +13,10 @@
    - boilerplate 
    - update 
    - delete 
-6. build image for various languages
-7. How to give 'check package' to job
+6. build image for various languages ☑️
+   - specify by API
+7. How to give 'check package' to job 
+   - shared volume ☑️
+   - node stream
 
  
