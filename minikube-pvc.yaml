@@ -1,0 +1,15 @@
+# minikube mount /Users/eileen/programming/temp/minikube-k8-volume:/data
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 5Gi
+

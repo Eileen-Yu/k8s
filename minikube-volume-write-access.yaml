@@ -1,0 +1,23 @@
+# Hold a pod to access to pv
+# So that we can send file to pv:
+# kubectl cp <host-path>/<code-file> dataaccess:/data
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dataaccess
+spec:
+  containers:
+  - name: alpine
+    image: alpine:latest
+    command: ['sleep', 'infinity']
+    volumeMounts:
+    - name: mypvc
+      mountPath: /data
+      # readOnly: true
+      # subPath: js
+  volumes:
+  - name: mypvc
+    persistentVolumeClaim:
+      claimName: test-pvc
+
