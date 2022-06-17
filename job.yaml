@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cpsource
+spec:
+  template:
+    metadata:
+      name: cpsource
+    spec:
+      containers:
+        - name: main
+          image: node:17-alpine
+            # command: [ "sh", "-c", "cp -R /source newsrc && ls newsrc" ]
+          command: [ "sh", "-c", "cp -R /source project && cd project && npm ci"]
+          volumeMounts:
+            - name: mypvc
+              mountPath: /source
+              readOnly: true
+              subPath: test/sturdy-eureka
+
+      restartPolicy: Never
+
+      volumes:
+      - name: mypvc
+        persistentVolumeClaim:
+          claimName: test-pvc
