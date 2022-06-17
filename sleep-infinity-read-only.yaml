@@ -9,10 +9,10 @@ spec:
     command: ['sleep', 'infinity']
     volumeMounts:
     - name: mypvc
-      # mountPath: /data
-      mountPath: /source # The file path in the container
-      readOnly: true     # Access mode to the data mount from pv
-      subPath: test        # The file path in pv, should be <repo-name>
+      mountPath: /data
+      # mountPath: /source # The file path in the container
+      # readOnly: true     # Access mode to the data mount from pv
+      # subPath: test        # The file path in pv, should be <repo-name>
   volumes:
   - name: mypvc
     persistentVolumeClaim:
